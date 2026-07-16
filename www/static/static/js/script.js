@@ -2056,4 +2056,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
     updatePrepaymentNumbers();
 
-});
+});Copy-Item index.html www\index.html -Force
