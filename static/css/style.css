@@ -1549,3 +1549,69 @@ footer span {
         right: 15px;
     }
 }
+/* Mobile-friendly loan schedule table */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.schedule-card table {
+    width: 100%;
+    min-width: 1000px;
+    border-collapse: collapse;
+}
+
+@media (max-width: 700px) {
+
+    .schedule-card {
+        padding: 16px 10px;
+    }
+
+    .table-container {
+        margin-top: 15px;
+        border-radius: 10px;
+        overflow-x: auto;
+    }
+
+    .schedule-card table {
+        min-width: 850px;
+        font-size: 12px;
+    }
+
+    .schedule-card th,
+    .schedule-card td {
+        padding: 10px 8px;
+        white-space: nowrap;
+    }
+
+    /* Keep Month visible while scrolling */
+
+    .schedule-card th:first-child,
+    .schedule-card td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: #ffffff;
+        border-right: 1px solid #e5e7eb;
+    }
+
+    .schedule-card th:first-child {
+        z-index: 3;
+        background: #f8fafc;
+    }
+
+    /* Mobile scroll hint */
+
+    .table-container::before {
+        content: "Swipe left to view full schedule →";
+        display: block;
+        position: sticky;
+        left: 0;
+        width: max-content;
+        padding: 8px 4px;
+        font-size: 11px;
+        color: #64748b;
+    }
+}
