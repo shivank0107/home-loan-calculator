@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Home Loan Smart Prepayment Planner</title>
+
+    <link
+
+       <link rel="stylesheet" href="./static/css/style.css">
+    >
+</head>
+
+
+<body>
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="top-header">
+
+    <div class="header-content">
+
+        <h1>Home Loan Planner</h1>
+
+        <p>
+            Plan every prepayment with your own EMI or tenure strategy
+        </p>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="container">
+
+
+    <!-- =================================================
+         STEP 1 - LOAN DETAILS
+    ================================================== -->
+
+    <section class="card">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-label">
+                    STEP 1
+                </span>
+
+                <h2>
+                    Loan Details
+                </h2>
+
+                <p class="section-description">
+                    Enter your original home loan details.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <!-- LOAN AMOUNT -->
+
+            <div class="form-group">
+
+                <label for="loanAmount">
+                    Loan Amount
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span class="input-prefix">
+                        ₹
+                    </span>
+
+                    <input
+                        type="number"
+                        id="loanAmount"
+                        value="5000000"
+                        min="1"
+                    >
+
+                </div>
+
+                <small>
+                    Example: ₹50,00,000
+                </small>
+
+            </div>
+
+
+            <!-- INTEREST RATE -->
+
+            <div class="form-group">
+
+                <label for="interestRate">
+                    Annual Interest Rate
+                </label>
+
+                <div class="input-wrapper">
+
+                    <input
+                        type="number"
+                        id="interestRate"
+                        value="7.65"
+                        min="0"
+                        step="0.01"
+                    >
+
+                    <span class="input-suffix">
+                        %
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- TENURE -->
+
+            <div class="form-group">
+
+                <label for="tenureYears">
+                    Loan Tenure
+                </label>
+
+                <div class="input-wrapper">
+
+                    <input
+                        type="number"
+                        id="tenureYears"
+                        value="25"
+                        min="1"
+                        max="50"
+                    >
+
+                    <span class="input-suffix">
+                        Years
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         STEP 2 - PREPAYMENTS
+    ================================================== -->
+
+    <section class="card">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-label">
+                    STEP 2
+                </span>
+
+                <h2>
+                    Plan Your Prepayments
+                </h2>
+
+                <p class="section-description">
+                    Choose a separate strategy for every prepayment.
+                    Your choices will be calculated in sequence.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="add-btn"
+                id="addPrepaymentBtn"
+            >
+                + Add Prepayment
+            </button>
+
+        </div>
+
+
+        <!-- PREPAYMENT CONTAINER -->
+
+        <div id="prepaymentContainer">
+
+
+            <!-- DEFAULT PREPAYMENT -->
+
+            <div class="prepayment-row">
+
+
+                <!-- NUMBER -->
+
+                <div class="prepayment-number">
+                    1
+                </div>
+
+
+                <!-- YEAR -->
+
+                <div class="prepayment-field">
+
+                    <label>
+                        Payment After
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <input
+                            type="number"
+                            class="prepayment-year"
+                            value="1"
+                            min="0"
+                        >
+
+                        <span class="input-suffix">
+                            Years
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MONTH -->
+
+                <div class="prepayment-field">
+
+                    <label>
+                        Additional Months
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <input
+                            type="number"
+                            class="prepayment-month"
+                            value="0"
+                            min="0"
+                            max="11"
+                        >
+
+                        <span class="input-suffix">
+                            Months
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- AMOUNT -->
+
+                <div class="prepayment-field">
+
+                    <label>
+                        Prepayment Amount
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-prefix">
+                            ₹
+                        </span>
+
+                        <input
+                            type="number"
+                            class="prepayment-amount"
+                            value="1000000"
+                            min="1"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- STRATEGY -->
+
+                <div class="prepayment-field strategy-field">
+
+                    <label>
+                        After Prepayment
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <select class="prepayment-strategy">
+
+                            <option value="reduce_tenure">
+                                Reduce Tenure - Keep EMI Same
+                            </option>
+
+                            <option value="reduce_emi">
+                                Reduce EMI - Keep Tenure Same
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- REMOVE -->
+
+                <button
+                    type="button"
+                    class="remove-btn"
+                    title="Remove Prepayment"
+                >
+                    ×
+                </button>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- STRATEGY INFO -->
+
+        <div class="strategy-info-box">
+
+            <div>
+
+                <strong>
+                    Reduce Tenure
+                </strong>
+
+                <span>
+                    Your current EMI stays the same and the loan closes earlier.
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <strong>
+                    Reduce EMI
+                </strong>
+
+                <span>
+                    Your current loan end date stays the same and the EMI reduces.
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         CALCULATE
+    ================================================== -->
+
+    <div class="calculate-section">
+
+        <button
+            type="button"
+            id="calculateBtn"
+            class="calculate-btn"
+        >
+            Calculate My Loan Plan
+        </button>
+
+    </div>
+
+
+    <!-- =================================================
+         RESULTS
+    ================================================== -->
+
+    <section
+        id="resultsSection"
+        class="results-section hidden"
+    >
+
+
+        <!-- =================================================
+             ORIGINAL LOAN
+        ================================================== -->
+
+        <div class="results-heading">
+
+            <span class="section-label">
+                ORIGINAL LOAN
+            </span>
+
+            <h2>
+                Original Loan Summary
+            </h2>
+
+        </div>
+
+
+        <div class="summary-grid">
+
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Loan Amount
+                </span>
+
+                <strong id="originalLoanAmount">
+                    ₹0
+                </strong>
+
+                <small>
+                    Original principal amount
+                </small>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Original EMI
+                </span>
+
+                <strong id="originalEmi">
+                    ₹0
+                </strong>
+
+                <small>
+                    Monthly EMI without prepayment
+                </small>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Original Tenure
+                </span>
+
+                <strong id="originalTenure">
+                    0 Years
+                </strong>
+
+                <small>
+                    Original repayment period
+                </small>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Original Interest
+                </span>
+
+                <strong id="originalInterest">
+                    ₹0
+                </strong>
+
+                <small>
+                    Total estimated interest
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             YOUR STRATEGY PLAN
+        ================================================== -->
+
+        <section class="card">
+
+            <div class="section-header">
+
+                <div>
+
+                    <span class="section-label">
+                        YOUR CHOICES
+                    </span>
+
+                    <h2>
+                        Your Prepayment Strategy
+                    </h2>
+
+                    <p class="section-description">
+                        Each calculation below includes the impact of
+                        all previous prepayment decisions.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="strategyHistoryContainer"
+                class="strategy-history-container"
+            >
+
+                <!-- JavaScript inserts strategy cards -->
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FINAL RESULT
+        ================================================== -->
+
+        <div class="results-heading comparison-heading">
+
+            <span class="section-label">
+                FINAL RESULT
+            </span>
+
+            <h2>
+                Your Selected Strategy Result
+            </h2>
+
+            <p class="section-description">
+                Final outcome after applying all your prepayment
+                choices in chronological order.
+            </p>
+
+        </div>
+
+
+        <div class="summary-grid final-result-grid">
+
+
+            <!-- FINAL EMI -->
+
+            <div class="summary-card highlight">
+
+                <span class="summary-title">
+                    Final EMI
+                </span>
+
+                <strong id="finalEmi">
+                    ₹0
+                </strong>
+
+                <small>
+                    EMI applicable after your last strategy change
+                </small>
+
+            </div>
+
+
+            <!-- FINAL TENURE -->
+
+            <div class="summary-card highlight">
+
+                <span class="summary-title">
+                    Final Loan Tenure
+                </span>
+
+                <strong id="finalTenure">
+                    0 Years
+                </strong>
+
+                <small>
+                    Actual estimated loan duration
+                </small>
+
+            </div>
+
+
+            <!-- TENURE SAVED -->
+
+            <div class="summary-card saving">
+
+                <span class="summary-title">
+                    Tenure Saved
+                </span>
+
+                <strong id="monthsSaved">
+                    0 Months
+                </strong>
+
+                <small>
+                    Reduction from original tenure
+                </small>
+
+            </div>
+
+
+            <!-- INTEREST SAVED -->
+
+            <div class="summary-card saving">
+
+                <span class="summary-title">
+                    Interest Saved
+                </span>
+
+                <strong id="interestSaved">
+                    ₹0
+                </strong>
+
+                <small>
+                    Estimated total interest saving
+                </small>
+
+            </div>
+
+
+            <!-- TOTAL PREPAYMENT -->
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Total Prepayment
+                </span>
+
+                <strong id="totalPrepayment">
+                    ₹0
+                </strong>
+
+                <small>
+                    Total extra principal paid
+                </small>
+
+            </div>
+
+
+            <!-- TOTAL INTEREST -->
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Total Interest
+                </span>
+
+                <strong id="totalInterest">
+                    ₹0
+                </strong>
+
+                <small>
+                    Interest after your strategy
+                </small>
+
+            </div>
+
+
+            <!-- TOTAL PAID -->
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Principal + Interest
+                </span>
+
+                <strong id="totalPaid">
+                    ₹0
+                </strong>
+
+                <small>
+                    Excluding prepayment as a separate extra cost
+                </small>
+
+            </div>
+
+
+            <!-- TOTAL STRATEGIES -->
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Strategy Changes
+                </span>
+
+                <strong id="totalStrategies">
+                    0
+                </strong>
+
+                <small>
+                    Number of prepayment decisions applied
+                </small>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             MONTH-WISE SCHEDULE
+        ================================================== -->
+
+        <section class="card schedule-card">
+
+            <div class="section-header">
+
+                <div>
+
+                    <span class="section-label">
+                        MONTH-WISE BREAKDOWN
+                    </span>
+
+                    <h2>
+                        Your Custom Loan Schedule
+                    </h2>
+
+                    <p class="section-description">
+                        This schedule follows your selected strategy
+                        after every prepayment.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Month
+                            </th>
+
+                            <th>
+                                Opening Balance
+                            </th>
+
+                            <th>
+                                EMI Paid
+                            </th>
+
+                            <th>
+                                Principal
+                            </th>
+
+                            <th>
+                                Interest
+                            </th>
+
+                            <th>
+                                Prepayment
+                            </th>
+
+                            <th>
+                                Closing Balance
+                            </th>
+
+                            <th>
+                                Next EMI
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="scheduleBody">
+
+                        <!-- JavaScript inserts schedule -->
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+    </section>
+
+
+</main>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer>
+
+    <p>
+        Home Loan Smart Prepayment Planner
+    </p>
+
+    <span>
+        Calculations are estimates. Actual bank calculations may
+        vary based on payment date, interest reset, lender rules
+        and prepayment policies.
+    </span>
+
+</footer>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script
+  <script src="./static/js/script.js"></script>
+></script>
+
+
+</body>
+
+</html>
