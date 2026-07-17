@@ -1,1150 +1,2059 @@
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
 
-    const addPrepaymentBtn = document.getElementById("addPrepaymentBtn");
-    const prepaymentContainer = document.getElementById("prepaymentContainer");
-    const calculateBtn = document.getElementById("calculateBtn");
-    const resultsSection = document.getElementById("resultsSection");
-    const scheduleBody = document.getElementById("scheduleBody");
+        // =====================================================
+        // ELEMENTS
+        // =====================================================
 
-
-    // =====================================================
-    // FORMAT CURRENCY
-    // =====================================================
-
-    function formatCurrency(value) {
-
-        return new Intl.NumberFormat("en-IN", {
-            style: "currency",
-            currency: "INR",
-            maximumFractionDigits: 0
-        }).format(Number(value) || 0);
-
-    }
+        const addPrepaymentBtn = document.getElementById("addPrepaymentBtn");
+        const prepaymentContainer = document.getElementById("prepaymentContainer");
+        const calculateBtn = document.getElementById("calculateBtn");
+        const resultsSection = document.getElementById("resultsSection");
+        const scheduleBody = document.getElementById("scheduleBody");
 
 
-    // =====================================================
-    // FORMAT TENURE
-    // =====================================================
+        // =====================================================
+        // FORMAT CURRENCY
+        // =====================================================
 
-    function formatTenure(totalMonths) {
+        function formatCurrency(value) {
 
-        totalMonths = Math.max(
-            Math.round(Number(totalMonths) || 0),
-            0
-        );
+            return new Intl.NumberFormat("en-IN", {
+                style: "currency",
+                currency: "INR",
+                maximumFractionDigits: 0
+            }).format(Number(value) || 0);
 
-        const years = Math.floor(totalMonths / 12);
-        const months = totalMonths % 12;
-
-        if (years === 0) {
-            return `${months} Months`;
         }
 
-        if (months === 0) {
-            return `${years} Years`;
-        }
 
-        return `${years} Years ${months} Months`;
+        // =====================================================
+        // FORMAT TENURE
+        // =====================================================
 
-    }
+        function formatTenure(totalMonths) {
 
-
-    // =====================================================
-    // UPDATE PREPAYMENT NUMBERS
-    // =====================================================
-
-    function updatePrepaymentNumbers() {
-
-        const rows =
-            document.querySelectorAll(".prepayment-row");
-
-        rows.forEach(function (row, index) {
-
-            const number =
-                row.querySelector(".prepayment-number");
-
-            if (number) {
-                number.textContent = index + 1;
-            }
-
-        });
-
-    }
-
-
-    // =====================================================
-    // CREATE PREPAYMENT ROW
-    // =====================================================
-
-    function createPrepaymentRow() {
-
-        const row = document.createElement("div");
-
-        row.className = "prepayment-row";
-
-        row.innerHTML = `
-
-            <div class="prepayment-number">
-                1
-            </div>
-
-            <div class="prepayment-field">
-
-                <label>
-                    Payment After
-                </label>
-
-                <div class="input-wrapper">
-
-                    <input
-                        type="number"
-                        class="prepayment-year"
-                        value="0"
-                        min="0"
-                    >
-
-                    <span class="input-suffix">
-                        Years
-                    </span>
-
-                </div>
-
-            </div>
-
-            <div class="prepayment-field">
-
-                <label>
-                    Additional Months
-                </label>
-
-                <div class="input-wrapper">
-
-                    <input
-                        type="number"
-                        class="prepayment-month"
-                        value="0"
-                        min="0"
-                        max="11"
-                    >
-
-                    <span class="input-suffix">
-                        Months
-                    </span>
-
-                </div>
-
-            </div>
-
-            <div class="prepayment-field">
-
-                <label>
-                    Prepayment Amount
-                </label>
-
-                <div class="input-wrapper">
-
-                    <span class="input-prefix">
-                        ₹
-                    </span>
-
-                    <input
-                        type="number"
-                        class="prepayment-amount"
-                        value="500000"
-                        min="1"
-                    >
-
-                </div>
-
-            </div>
-
-            <div class="prepayment-field strategy-field">
-
-                <label>
-                    After Prepayment
-                </label>
-
-                <div class="input-wrapper">
-
-                    <select class="prepayment-strategy">
-
-                        <option value="reduce_tenure">
-                            Reduce Tenure - Keep EMI Same
-                        </option>
-
-                        <option value="reduce_emi">
-                            Reduce EMI - Keep Tenure Same
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-            <button
-                type="button"
-                class="remove-btn"
-                title="Remove Prepayment"
-            >
-                ×
-            </button>
-
-        `;
-
-        prepaymentContainer.appendChild(row);
-
-        updatePrepaymentNumbers();
-
-    }
-
-
-    // =====================================================
-    // ADD PREPAYMENT
-    // =====================================================
-
-    addPrepaymentBtn.addEventListener(
-        "click",
-        function () {
-
-            createPrepaymentRow();
-
-        }
-    );
-
-
-    // =====================================================
-    // REMOVE PREPAYMENT
-    // =====================================================
-
-    prepaymentContainer.addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                event.target.classList.contains(
-                    "remove-btn"
-                )
-            ) {
-
-                const row =
-                    event.target.closest(
-                        ".prepayment-row"
-                    );
-
-                if (row) {
-                    row.remove();
-                }
-
-                updatePrepaymentNumbers();
-
-            }
-
-        }
-    );
-
-
-    // =====================================================
-    // GET PREPAYMENTS WITH USER STRATEGY
-    // =====================================================
-
-    function getPrepayments() {
-
-        const rows =
-            document.querySelectorAll(
-                ".prepayment-row"
+            totalMonths = Math.max(
+                Math.round(Number(totalMonths) || 0),
+                0
             );
 
-        const prepayments = [];
+            const years = Math.floor(totalMonths / 12);
+            const months = totalMonths % 12;
 
-        rows.forEach(function (row) {
+            if (years === 0) {
+                return `${months} Months`;
+            }
 
-            const years =
-                Number(
+            if (months === 0) {
+                return `${years} Years`;
+            }
+
+            return `${years} Years ${months} Months`;
+
+        }
+
+
+        // =====================================================
+        // UPDATE PREPAYMENT NUMBERS
+        // =====================================================
+
+        function updatePrepaymentNumbers() {
+
+            const rows =
+                document.querySelectorAll(".prepayment-row");
+
+            rows.forEach(function (row, index) {
+
+                const number =
+                    row.querySelector(".prepayment-number");
+
+                if (number) {
+                    number.textContent = index + 1;
+                }
+
+            });
+
+        }
+
+
+        // =====================================================
+        // CREATE PREPAYMENT ROW
+        // =====================================================
+
+        function createPrepaymentRow() {
+
+            const row = document.createElement("div");
+
+            row.className = "prepayment-row";
+
+            row.innerHTML = `
+
+                <div class="prepayment-number">
+                    1
+                </div>
+
+                <div class="prepayment-field">
+
+                    <label>
+                        Payment After
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <input
+                            type="number"
+                            class="prepayment-year"
+                            value="0"
+                            min="0"
+                        >
+
+                        <span class="input-suffix">
+                            Years
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="prepayment-field">
+
+                    <label>
+                        Additional Months
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <input
+                            type="number"
+                            class="prepayment-month"
+                            value="0"
+                            min="0"
+                            max="11"
+                        >
+
+                        <span class="input-suffix">
+                            Months
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="prepayment-field">
+
+                    <label>
+                        Prepayment Amount
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-prefix">
+                            ₹
+                        </span>
+
+                        <input
+                            type="number"
+                            class="prepayment-amount"
+                            value="500000"
+                            min="1"
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="prepayment-field strategy-field">
+
+                    <label>
+                        After Prepayment
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <select class="prepayment-strategy">
+
+                            <option value="reduce_tenure">
+                                Reduce Tenure - Keep EMI Same
+                            </option>
+
+                            <option value="reduce_emi">
+                                Reduce EMI - Keep Tenure Same
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="remove-btn"
+                    title="Remove Prepayment"
+                >
+                    ×
+                </button>
+
+            `;
+
+            prepaymentContainer.appendChild(row);
+
+            updatePrepaymentNumbers();
+
+        }
+
+
+        // =====================================================
+        // ADD PREPAYMENT
+        // =====================================================
+
+        addPrepaymentBtn.addEventListener(
+            "click",
+            function () {
+
+                createPrepaymentRow();
+
+            }
+        );
+
+
+        // =====================================================
+        // REMOVE PREPAYMENT
+        // =====================================================
+
+        prepaymentContainer.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target.classList.contains(
+                        "remove-btn"
+                    )
+                ) {
+
+                    const row =
+                        event.target.closest(
+                            ".prepayment-row"
+                        );
+
+                    if (row) {
+                        row.remove();
+                    }
+
+                    updatePrepaymentNumbers();
+
+                }
+
+            }
+        );
+
+
+        // =====================================================
+        // GET PREPAYMENTS
+        // =====================================================
+
+        function getPrepayments() {
+
+            const rows =
+                document.querySelectorAll(
+                    ".prepayment-row"
+                );
+
+            const prepayments = [];
+
+
+            rows.forEach(function (row, index) {
+
+                const years =
+                    Number(
+                        row.querySelector(
+                            ".prepayment-year"
+                        ).value
+                    ) || 0;
+
+
+                const additionalMonths =
+                    Number(
+                        row.querySelector(
+                            ".prepayment-month"
+                        ).value
+                    ) || 0;
+
+
+                const amount =
+                    Number(
+                        row.querySelector(
+                            ".prepayment-amount"
+                        ).value
+                    ) || 0;
+
+
+                const strategy =
                     row.querySelector(
-                        ".prepayment-year"
-                    ).value
-                ) || 0;
+                        ".prepayment-strategy"
+                    ).value;
 
-            const additionalMonths =
-                Number(
-                    row.querySelector(
-                        ".prepayment-month"
-                    ).value
-                ) || 0;
 
-            const amount =
-                Number(
-                    row.querySelector(
-                        ".prepayment-amount"
-                    ).value
-                ) || 0;
+                const month =
+                    (years * 12) +
+                    additionalMonths;
 
-            const strategy =
-                row.querySelector(
-                    ".prepayment-strategy"
-                ).value;
 
-            const month =
-                (years * 12)
-                + additionalMonths;
+                if (
+                    month > 0 &&
+                    amount > 0
+                ) {
+
+                    prepayments.push({
+
+                        original_number:
+                            index + 1,
+
+                        month:
+                            month,
+
+                        amount:
+                            amount,
+
+                        strategy:
+                            strategy
+
+                    });
+
+                }
+
+            });
+
+
+            return prepayments;
+
+        }
+
+
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
+        function validateInputs(
+            loanAmount,
+            interestRate,
+            tenureYears
+        ) {
+
+            if (
+                !loanAmount ||
+                loanAmount <= 0
+            ) {
+
+                alert(
+                    "Please enter a valid loan amount."
+                );
+
+                return false;
+
+            }
 
 
             if (
-                month > 0 &&
-                amount > 0
+                isNaN(interestRate) ||
+                interestRate < 0
             ) {
 
-                prepayments.push({
+                alert(
+                    "Please enter a valid interest rate."
+                );
 
-                    month: month,
-                    amount: amount,
-                    strategy: strategy
+                return false;
+
+            }
+
+
+            if (
+                !tenureYears ||
+                tenureYears <= 0
+            ) {
+
+                alert(
+                    "Please enter a valid loan tenure."
+                );
+
+                return false;
+
+            }
+
+
+            return true;
+
+        }
+
+
+        // =====================================================
+        // EMI CALCULATION
+        // =====================================================
+
+        function calculateEMI(
+            principal,
+            monthlyRate,
+            months
+        ) {
+
+            if (
+                principal <= 0 ||
+                months <= 0
+            ) {
+
+                return 0;
+
+            }
+
+
+            if (monthlyRate === 0) {
+
+                return (
+                    principal /
+                    months
+                );
+
+            }
+
+
+            const factor =
+                Math.pow(
+                    1 + monthlyRate,
+                    months
+                );
+
+
+            return (
+                principal *
+                monthlyRate *
+                factor /
+                (factor - 1)
+            );
+
+        }
+
+
+        // =====================================================
+        // REMAINING TENURE
+        // =====================================================
+
+        function calculateRemainingMonths(
+            principal,
+            monthlyRate,
+            emi
+        ) {
+
+            if (
+                principal <= 0 ||
+                emi <= 0
+            ) {
+
+                return 0;
+
+            }
+
+
+            if (monthlyRate === 0) {
+
+                return Math.ceil(
+                    principal /
+                    emi
+                );
+
+            }
+
+
+            if (
+                emi <=
+                principal *
+                monthlyRate
+            ) {
+
+                return 1200;
+
+            }
+
+
+            const months =
+
+                -Math.log(
+
+                    1 -
+
+                    (
+                        principal *
+                        monthlyRate /
+                        emi
+                    )
+
+                )
+
+                /
+
+                Math.log(
+                    1 + monthlyRate
+                );
+
+
+            return Math.ceil(
+                months
+            );
+
+        }
+
+
+        // =====================================================
+        // MAIN LOAN CALCULATION
+        // =====================================================
+
+        function calculateLoanPlan(
+            loanAmount,
+            annualRate,
+            tenureYears,
+            prepayments
+        ) {
+
+            const monthlyRate =
+                annualRate /
+                12 /
+                100;
+
+
+            const originalMonths =
+                tenureYears *
+                12;
+
+
+            const originalEMI =
+                calculateEMI(
+                    loanAmount,
+                    monthlyRate,
+                    originalMonths
+                );
+
+
+            const originalInterest =
+                (
+                    originalEMI *
+                    originalMonths
+                )
+                -
+                loanAmount;
+
+
+            // =================================================
+            // PREPARE PREPAYMENTS
+            // =================================================
+
+            const validPrepayments =
+
+                prepayments
+
+                    .filter(function (item) {
+
+                        return (
+                            item.month > 0 &&
+                            item.amount > 0
+                        );
+
+                    })
+
+                    .map(function (
+                        item,
+                        index
+                    ) {
+
+                        return {
+
+                            original_number:
+                                item.original_number ||
+                                index + 1,
+
+                            month:
+                                Number(
+                                    item.month
+                                ),
+
+                            amount:
+                                Number(
+                                    item.amount
+                                ),
+
+                            strategy:
+                                item.strategy ===
+                                "reduce_emi"
+
+                                    ? "reduce_emi"
+
+                                    : "reduce_tenure"
+
+                        };
+
+                    })
+
+                    .sort(function (a, b) {
+
+                        return (
+                            a.month -
+                            b.month
+                        );
+
+                    });
+
+
+            // =================================================
+            // PREPAYMENT MAP
+            // =================================================
+
+            const prepaymentMap = {};
+
+
+            validPrepayments.forEach(
+                function (payment) {
+
+                    if (
+                        !prepaymentMap[
+                            payment.month
+                        ]
+                    ) {
+
+                        prepaymentMap[
+                            payment.month
+                        ] = [];
+
+                    }
+
+
+                    prepaymentMap[
+                        payment.month
+                    ].push(
+                        payment
+                    );
+
+                }
+            );
+
+
+            // =================================================
+            // INITIAL STATE
+            // =================================================
+
+            let balance =
+                loanAmount;
+
+
+            let currentEMI =
+                originalEMI;
+
+
+            let currentEndMonth =
+                originalMonths;
+
+
+            let totalInterest =
+                0;
+
+
+            let totalPrepayment =
+                0;
+
+
+            const schedule =
+                [];
+
+
+            const strategyHistory =
+                [];
+
+
+            let month =
+                1;
+
+
+            // =================================================
+            // MONTH-WISE CALCULATION
+            // =================================================
+
+            while (
+                balance > 0.01 &&
+                month <= 1200
+            ) {
+
+
+                // =============================================
+                // REGULAR EMI
+                // =============================================
+
+                const openingBalance =
+                    balance;
+
+
+                const interest =
+                    openingBalance *
+                    monthlyRate;
+
+
+                let principalPaid =
+                    currentEMI -
+                    interest;
+
+
+                if (
+                    principalPaid <= 0
+                ) {
+
+                    throw new Error(
+                        "EMI is too low to cover monthly interest."
+                    );
+
+                }
+
+
+                let emiPaid =
+                    currentEMI;
+
+
+                // Last EMI adjustment
+
+                if (
+                    principalPaid >=
+                    balance
+                ) {
+
+                    principalPaid =
+                        balance;
+
+
+                    emiPaid =
+                        principalPaid +
+                        interest;
+
+                }
+
+
+                balance -=
+                    principalPaid;
+
+
+                totalInterest +=
+                    interest;
+
+
+                let monthPrepayment =
+                    0;
+
+
+                // =============================================
+                // PREPAYMENTS THIS MONTH
+                // =============================================
+
+                if (
+                    prepaymentMap[
+                        month
+                    ] &&
+                    balance > 0.01
+                ) {
+
+
+                    for (
+                        const payment
+                        of prepaymentMap[
+                            month
+                        ]
+                    ) {
+
+
+                        if (
+                            balance <= 0.01
+                        ) {
+
+                            break;
+
+                        }
+
+
+                        const balanceBefore =
+                            balance;
+
+
+                        const actualPrepayment =
+                            Math.min(
+                                payment.amount,
+                                balance
+                            );
+
+
+                        balance -=
+                            actualPrepayment;
+
+
+                        monthPrepayment +=
+                            actualPrepayment;
+
+
+                        totalPrepayment +=
+                            actualPrepayment;
+
+
+                        const oldEMI =
+                            currentEMI;
+
+
+                        const oldEndMonth =
+                            currentEndMonth;
+
+
+                        const oldRemainingMonths =
+                            Math.max(
+                                oldEndMonth -
+                                month,
+                                0
+                            );
+
+
+                        // =====================================
+                        // REDUCE TENURE
+                        // =====================================
+
+                        if (
+                            payment.strategy ===
+                            "reduce_tenure"
+                        ) {
+
+
+                            let newRemainingMonths =
+                                0;
+
+
+                            if (
+                                balance > 0.01
+                            ) {
+
+                                newRemainingMonths =
+
+                                    calculateRemainingMonths(
+
+                                        balance,
+
+                                        monthlyRate,
+
+                                        currentEMI
+
+                                    );
+
+                            }
+
+
+                            currentEndMonth =
+
+                                month +
+
+                                newRemainingMonths;
+
+
+                            const monthsReduced =
+
+                                Math.max(
+
+                                    oldEndMonth -
+
+                                    currentEndMonth,
+
+                                    0
+
+                                );
+
+
+                            strategyHistory.push({
+
+                                number:
+                                    payment.original_number,
+
+                                month:
+                                    month,
+
+                                amount:
+                                    actualPrepayment,
+
+                                strategy:
+                                    "reduce_tenure",
+
+                                strategy_label:
+                                    "Reduce Tenure",
+
+                                balance_before:
+                                    balanceBefore,
+
+                                balance_after:
+                                    balance,
+
+                                old_emi:
+                                    oldEMI,
+
+                                new_emi:
+                                    currentEMI,
+
+                                old_remaining_months:
+                                    oldRemainingMonths,
+
+                                new_remaining_months:
+                                    newRemainingMonths,
+
+                                months_reduced:
+                                    monthsReduced,
+
+                                new_end_month:
+                                    currentEndMonth
+
+                            });
+
+                        }
+
+
+                        // =====================================
+                        // REDUCE EMI
+                        // =====================================
+
+                        else {
+
+
+                            const remainingMonths =
+
+                                Math.max(
+
+                                    currentEndMonth -
+
+                                    month,
+
+                                    0
+
+                                );
+
+
+                            if (
+                                balance > 0.01 &&
+                                remainingMonths > 0
+                            ) {
+
+                                currentEMI =
+
+                                    calculateEMI(
+
+                                        balance,
+
+                                        monthlyRate,
+
+                                        remainingMonths
+
+                                    );
+
+                            }
+
+                            else {
+
+                                currentEMI =
+                                    0;
+
+                            }
+
+
+                            const emiReducedBy =
+
+                                Math.max(
+
+                                    oldEMI -
+
+                                    currentEMI,
+
+                                    0
+
+                                );
+
+
+                            strategyHistory.push({
+
+                                number:
+                                    payment.original_number,
+
+                                month:
+                                    month,
+
+                                amount:
+                                    actualPrepayment,
+
+                                strategy:
+                                    "reduce_emi",
+
+                                strategy_label:
+                                    "Reduce EMI",
+
+                                balance_before:
+                                    balanceBefore,
+
+                                balance_after:
+                                    balance,
+
+                                old_emi:
+                                    oldEMI,
+
+                                new_emi:
+                                    currentEMI,
+
+                                emi_reduced_by:
+                                    emiReducedBy,
+
+                                remaining_months:
+                                    remainingMonths,
+
+                                new_end_month:
+                                    currentEndMonth
+
+                            });
+
+                        }
+
+                    }
+
+                }
+
+
+                // =============================================
+                // SCHEDULE
+                // =============================================
+
+                schedule.push({
+
+                    month:
+                        month,
+
+                    opening_balance:
+                        openingBalance,
+
+                    emi:
+                        emiPaid,
+
+                    principal:
+                        principalPaid,
+
+                    interest:
+                        interest,
+
+                    prepayment:
+                        monthPrepayment,
+
+                    closing_balance:
+                        Math.max(
+                            balance,
+                            0
+                        ),
+
+                    next_emi:
+                        currentEMI,
+
+                    expected_end_month:
+                        currentEndMonth
 
                 });
 
+
+                // Loan closed
+
+                if (
+                    balance <= 0.01
+                ) {
+
+                    balance =
+                        0;
+
+                    break;
+
+                }
+
+
+                month++;
+
             }
 
-        });
+
+            // =================================================
+            // FINAL RESULTS
+            // =================================================
+
+            const actualMonths =
+                schedule.length;
 
 
-        return prepayments;
+            const monthsSaved =
 
-    }
+                Math.max(
+
+                    originalMonths -
+
+                    actualMonths,
+
+                    0
+
+                );
 
 
-    // =====================================================
-    // VALIDATION
-    // =====================================================
+            const interestSaved =
 
-    function validateInputs(
-        loanAmount,
-        interestRate,
-        tenureYears
-    ) {
+                Math.max(
 
-        if (
-            !loanAmount ||
-            loanAmount <= 0
-        ) {
+                    originalInterest -
 
-            alert(
-                "Please enter a valid loan amount."
-            );
+                    totalInterest,
 
-            return false;
+                    0
+
+                );
+
+
+            const totalPaid =
+
+                loanAmount +
+
+                totalInterest;
+
+
+            return {
+
+                success:
+                    true,
+
+
+                original: {
+
+                    loan_amount:
+                        loanAmount,
+
+                    emi:
+                        originalEMI,
+
+                    months:
+                        originalMonths,
+
+                    interest:
+                        originalInterest
+
+                },
+
+
+                mixed_result: {
+
+                    final_emi:
+                        currentEMI,
+
+                    actual_months:
+                        actualMonths,
+
+                    months_saved:
+                        monthsSaved,
+
+                    total_interest:
+                        totalInterest,
+
+                    interest_saved:
+                        interestSaved,
+
+                    total_prepayment:
+                        totalPrepayment,
+
+                    total_paid:
+                        totalPaid
+
+                },
+
+
+                strategy_history:
+                    strategyHistory,
+
+
+                schedule:
+                    schedule
+
+            };
 
         }
 
 
-        if (
-            isNaN(interestRate) ||
-            interestRate < 0
-        ) {
+        // =====================================================
+        // CALCULATE BUTTON
+        // =====================================================
 
-            alert(
-                "Please enter a valid interest rate."
+        calculateBtn.addEventListener(
+            "click",
+            function () {
+
+
+                const loanAmount =
+
+                    Number(
+
+                        document.getElementById(
+                            "loanAmount"
+                        ).value
+
+                    );
+
+
+                const interestRate =
+
+                    Number(
+
+                        document.getElementById(
+                            "interestRate"
+                        ).value
+
+                    );
+
+
+                const tenureYears =
+
+                    Number(
+
+                        document.getElementById(
+                            "tenureYears"
+                        ).value
+
+                    );
+
+
+                if (
+
+                    !validateInputs(
+
+                        loanAmount,
+
+                        interestRate,
+
+                        tenureYears
+
+                    )
+
+                ) {
+
+                    return;
+
+                }
+
+
+                const prepayments =
+                    getPrepayments();
+
+
+                calculateBtn.disabled =
+                    true;
+
+
+                calculateBtn.textContent =
+                    "Calculating Your Plan...";
+
+
+                try {
+
+
+                    const data =
+
+                        calculateLoanPlan(
+
+                            loanAmount,
+
+                            interestRate,
+
+                            tenureYears,
+
+                            prepayments
+
+                        );
+
+
+                    displayResults(
+                        data
+                    );
+
+
+                }
+
+                catch (error) {
+
+
+                    console.error(
+                        error
+                    );
+
+
+                    alert(
+
+                        "Error: " +
+
+                        error.message
+
+                    );
+
+
+                }
+
+                finally {
+
+
+                    calculateBtn.disabled =
+                        false;
+
+
+                    calculateBtn.textContent =
+                        "Calculate My Loan Plan";
+
+
+                }
+
+            }
+        );
+
+
+        // =====================================================
+        // DISPLAY RESULTS
+        // =====================================================
+
+        function displayResults(data) {
+
+
+            displayOriginalLoan(
+                data.original
             );
 
-            return false;
+
+            displayStrategyHistory(
+
+                data.strategy_history ||
+                []
+
+            );
+
+
+            displayFinalResult(
+
+                data.mixed_result,
+
+                data.strategy_history ||
+                []
+
+            );
+
+
+            renderSchedule(
+
+                data.schedule ||
+                []
+
+            );
+
+
+            resultsSection.classList.remove(
+                "hidden"
+            );
+
+
+            setTimeout(
+                function () {
+
+                    resultsSection.scrollIntoView({
+
+                        behavior:
+                            "smooth",
+
+                        block:
+                            "start"
+
+                    });
+
+                },
+                100
+            );
 
         }
 
 
-        if (
-            !tenureYears ||
-            tenureYears <= 0
+        // =====================================================
+        // ORIGINAL LOAN
+        // =====================================================
+
+        function displayOriginalLoan(
+            original
         ) {
 
-            alert(
-                "Please enter a valid loan tenure."
-            );
 
-            return false;
+            document.getElementById(
+                "originalLoanAmount"
+            ).textContent =
+
+                formatCurrency(
+                    original.loan_amount
+                );
+
+
+            document.getElementById(
+                "originalEmi"
+            ).textContent =
+
+                formatCurrency(
+                    original.emi
+                );
+
+
+            document.getElementById(
+                "originalTenure"
+            ).textContent =
+
+                formatTenure(
+                    original.months
+                );
+
+
+            document.getElementById(
+                "originalInterest"
+            ).textContent =
+
+                formatCurrency(
+                    original.interest
+                );
 
         }
 
 
-        return true;
+        // =====================================================
+        // STRATEGY HISTORY
+        // =====================================================
 
-    }
+        function displayStrategyHistory(
+            history
+        ) {
 
 
-    // =====================================================
-    // CALCULATE
-    // =====================================================
+            const container =
 
-    calculateBtn.addEventListener(
-        "click",
-        async function () {
-
-            const loanAmount =
-                Number(
-                    document.getElementById(
-                        "loanAmount"
-                    ).value
+                document.getElementById(
+                    "strategyHistoryContainer"
                 );
 
-            const interestRate =
-                Number(
-                    document.getElementById(
-                        "interestRate"
-                    ).value
-                );
 
-            const tenureYears =
-                Number(
-                    document.getElementById(
-                        "tenureYears"
-                    ).value
-                );
+            container.innerHTML =
+                "";
 
 
             if (
-                !validateInputs(
-                    loanAmount,
-                    interestRate,
-                    tenureYears
-                )
+                !history ||
+                history.length === 0
             ) {
+
+
+                container.innerHTML = `
+
+                    <div class="no-prepayment-message">
+
+                        No prepayment strategy was applied.
+
+                    </div>
+
+                `;
+
 
                 return;
 
             }
 
 
-            const prepayments =
-                getPrepayments();
-
-
-            calculateBtn.disabled = true;
-
-            calculateBtn.textContent =
-                "Calculating Your Plan...";
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/calculate",
-                        {
-
-                            method: "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    loan_amount:
-                                        loanAmount,
-
-                                    interest_rate:
-                                        interestRate,
-
-                                    tenure_years:
-                                        tenureYears,
-
-                                    prepayments:
-                                        prepayments
-
-                                })
-
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                if (
-                    !response.ok ||
-                    !data.success
+            history.forEach(
+                function (
+                    item,
+                    index
                 ) {
 
-                    throw new Error(
-                        data.error ||
-                        "Unable to calculate loan."
+
+                    const card =
+
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    card.className =
+                        "strategy-history-card";
+
+
+                    const isTenure =
+
+                        item.strategy ===
+                        "reduce_tenure";
+
+
+                    let resultContent =
+                        "";
+
+
+                    // =========================================
+                    // REDUCE TENURE RESULT
+                    // =========================================
+
+                    if (
+                        isTenure
+                    ) {
+
+
+                        resultContent = `
+
+                            <div class="decision-result">
+
+
+                                <div>
+
+                                    <span>
+                                        EMI
+                                    </span>
+
+                                    <strong>
+
+                                        ${formatCurrency(
+                                            item.new_emi
+                                        )}
+
+                                    </strong>
+
+                                    <small>
+                                        Remains unchanged
+                                    </small>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        Previous Remaining Tenure
+                                    </span>
+
+                                    <strong>
+
+                                        ${formatTenure(
+                                            item.old_remaining_months
+                                        )}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        New Remaining Tenure
+                                    </span>
+
+                                    <strong>
+
+                                        ${formatTenure(
+                                            item.new_remaining_months
+                                        )}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="positive-result">
+
+                                    <span>
+                                        Tenure Reduced By
+                                    </span>
+
+                                    <strong>
+
+                                        ${formatTenure(
+                                            item.months_reduced
+                                        )}
+
+                                    </strong>
+
+                                </div>
+
+
+                            </div>
+
+                        `;
+
+                    }
+
+
+                    // =========================================
+                    // REDUCE EMI RESULT
+                    // =========================================
+
+                    else {
+
+
+                        resultContent = `
+
+                            <div class="decision-result">
+
+
+                                <div>
+
+                                    <span>
+                                        Previous EMI
+                                    </span>
+
+                                    <strong>
+
+                                        ${formatCurrency(
+                                            item.old_emi
+                                        )}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        New EMI
+                                    </span>
+
+                                    <strong>
+
+                                        ${formatCurrency(
+                                            item.new_emi
+                                        )}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="positive-result">
+
+                                    <span>
+                                        EMI Reduced By
+                                    </span>
+
+                                    <strong>
+
+                                        ${formatCurrency(
+                                            item.emi_reduced_by
+                                        )}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        Remaining Tenure
+                                    </span>
+
+                                    <strong>
+
+                                        ${formatTenure(
+                                            item.remaining_months
+                                        )}
+
+                                    </strong>
+
+                                </div>
+
+
+                            </div>
+
+                        `;
+
+                    }
+
+
+                    // =========================================
+                    // CARD
+                    // =========================================
+
+                    card.innerHTML = `
+
+                        <div class="strategy-history-header">
+
+
+                            <div class="strategy-step-number">
+
+                                ${index + 1}
+
+                            </div>
+
+
+                            <div class="strategy-payment-info">
+
+
+                                <span class="strategy-time">
+
+                                    After
+
+                                    ${formatTenure(
+                                        item.month
+                                    )}
+
+                                </span>
+
+
+                                <h3>
+
+                                    ${formatCurrency(
+                                        item.amount
+                                    )}
+
+                                    Prepayment
+
+                                </h3>
+
+
+                                <span class="selected-strategy ${
+                                    isTenure
+                                        ? "tenure-strategy"
+                                        : "emi-strategy"
+                                }">
+
+                                    ${
+                                        isTenure
+                                            ? "Reduce Tenure"
+                                            : "Reduce EMI"
+                                    }
+
+                                </span>
+
+
+                            </div>
+
+
+                            <div class="strategy-balance-info">
+
+
+                                <span>
+                                    Balance Before
+                                </span>
+
+
+                                <strong>
+
+                                    ${formatCurrency(
+                                        item.balance_before
+                                    )}
+
+                                </strong>
+
+
+                                <span>
+                                    Balance After
+                                </span>
+
+
+                                <strong>
+
+                                    ${formatCurrency(
+                                        item.balance_after
+                                    )}
+
+                                </strong>
+
+
+                            </div>
+
+
+                        </div>
+
+
+                        ${resultContent}
+
+                    `;
+
+
+                    container.appendChild(
+                        card
                     );
 
                 }
-
-
-                displayResults(data);
-
-            }
-            catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Error: "
-                    + error.message
-                );
-
-            }
-            finally {
-
-                calculateBtn.disabled = false;
-
-                calculateBtn.textContent =
-                    "Calculate My Loan Plan";
-
-            }
+            );
 
         }
-    );
 
 
-    // =====================================================
-    // DISPLAY RESULTS
-    // =====================================================
+        // =====================================================
+        // FINAL RESULT
+        // =====================================================
 
-    function displayResults(data) {
-
-        displayOriginalLoan(
-            data.original
-        );
-
-        displayStrategyHistory(
-            data.strategy_history || []
-        );
-
-        displayFinalResult(
-            data.mixed_result,
-            data.strategy_history || []
-        );
-
-        renderSchedule(
-            data.schedule || []
-        );
+        function displayFinalResult(
+            result,
+            history
+        ) {
 
 
-        resultsSection.classList.remove(
-            "hidden"
-        );
-
-
-        setTimeout(function () {
-
-            resultsSection.scrollIntoView({
-
-                behavior: "smooth",
-                block: "start"
-
-            });
-
-        }, 100);
-
-    }
-
-
-    // =====================================================
-    // ORIGINAL LOAN
-    // =====================================================
-
-    function displayOriginalLoan(original) {
-
-        document.getElementById(
-            "originalLoanAmount"
-        ).textContent =
-            formatCurrency(
-                original.loan_amount
-            );
-
-
-        document.getElementById(
-            "originalEmi"
-        ).textContent =
-            formatCurrency(
-                original.emi
-            );
-
-
-        document.getElementById(
-            "originalTenure"
-        ).textContent =
-            formatTenure(
-                original.months
-            );
-
-
-        document.getElementById(
-            "originalInterest"
-        ).textContent =
-            formatCurrency(
-                original.interest
-            );
-
-    }
-
-
-    // =====================================================
-    // STRATEGY HISTORY
-    // =====================================================
-
-    function displayStrategyHistory(history) {
-
-        const container =
             document.getElementById(
-                "strategyHistoryContainer"
-            );
+                "finalEmi"
+            ).textContent =
+
+                formatCurrency(
+                    result.final_emi
+                );
 
 
-        container.innerHTML = "";
+            document.getElementById(
+                "finalTenure"
+            ).textContent =
+
+                formatTenure(
+                    result.actual_months
+                );
 
 
-        if (
-            !history ||
-            history.length === 0
-        ) {
+            document.getElementById(
+                "monthsSaved"
+            ).textContent =
 
-            container.innerHTML = `
+                formatTenure(
+                    result.months_saved
+                );
 
-                <div class="no-prepayment-message">
 
-                    No prepayment strategy was applied.
+            document.getElementById(
+                "interestSaved"
+            ).textContent =
 
-                </div>
+                formatCurrency(
+                    result.interest_saved
+                );
 
-            `;
 
-            return;
+            document.getElementById(
+                "totalPrepayment"
+            ).textContent =
+
+                formatCurrency(
+                    result.total_prepayment
+                );
+
+
+            document.getElementById(
+                "totalInterest"
+            ).textContent =
+
+                formatCurrency(
+                    result.total_interest
+                );
+
+
+            document.getElementById(
+                "totalPaid"
+            ).textContent =
+
+                formatCurrency(
+                    result.total_paid
+                );
+
+
+            document.getElementById(
+                "totalStrategies"
+            ).textContent =
+
+                history.length;
 
         }
 
 
-        history.forEach(function (
-            item,
-            index
+        // =====================================================
+        // RENDER SCHEDULE
+        // =====================================================
+
+        function renderSchedule(
+            schedule
         ) {
 
-            const card =
-                document.createElement(
-                    "div"
-                );
+
+            scheduleBody.innerHTML =
+                "";
 
 
-            card.className =
-                "strategy-history-card";
+            if (
+                !schedule ||
+                schedule.length === 0
+            ) {
 
 
-            const isTenure =
-                item.strategy ===
-                "reduce_tenure";
+                scheduleBody.innerHTML = `
 
+                    <tr>
 
-            let resultContent = "";
+                        <td colspan="8">
 
+                            No schedule available.
 
-            // =========================================
-            // REDUCE TENURE
-            // =========================================
+                        </td>
 
-            if (isTenure) {
-
-                resultContent = `
-
-                    <div class="decision-result">
-
-                        <div>
-
-                            <span>
-                                EMI
-                            </span>
-
-                            <strong>
-
-                                ${formatCurrency(
-                                    item.new_emi
-                                )}
-
-                            </strong>
-
-                            <small>
-                                Remains unchanged
-                            </small>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Previous Remaining Tenure
-                            </span>
-
-                            <strong>
-
-                                ${formatTenure(
-                                    item.old_remaining_months
-                                )}
-
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                New Remaining Tenure
-                            </span>
-
-                            <strong>
-
-                                ${formatTenure(
-                                    item.new_remaining_months
-                                )}
-
-                            </strong>
-
-                        </div>
-
-
-                        <div class="positive-result">
-
-                            <span>
-                                Tenure Reduced By
-                            </span>
-
-                            <strong>
-
-                                ${formatTenure(
-                                    item.months_reduced
-                                )}
-
-                            </strong>
-
-                        </div>
-
-                    </div>
+                    </tr>
 
                 `;
+
+
+                return;
 
             }
 
 
-            // =========================================
-            // REDUCE EMI
-            // =========================================
-
-            else {
-
-                resultContent = `
-
-                    <div class="decision-result">
-
-                        <div>
-
-                            <span>
-                                Previous EMI
-                            </span>
-
-                            <strong>
-
-                                ${formatCurrency(
-                                    item.old_emi
-                                )}
-
-                            </strong>
-
-                        </div>
+            schedule.forEach(
+                function (item) {
 
 
-                        <div>
+                    const row =
 
-                            <span>
-                                New EMI
-                            </span>
-
-                            <strong>
-
-                                ${formatCurrency(
-                                    item.new_emi
-                                )}
-
-                            </strong>
-
-                        </div>
+                        document.createElement(
+                            "tr"
+                        );
 
 
-                        <div class="positive-result">
+                    const prepayment =
 
-                            <span>
-                                EMI Reduced By
-                            </span>
-
-                            <strong>
-
-                                ${formatCurrency(
-                                    item.emi_reduced_by
-                                )}
-
-                            </strong>
-
-                        </div>
+                        Number(
+                            item.prepayment
+                        ) || 0;
 
 
-                        <div>
+                    const emiChanged =
 
-                            <span>
-                                Remaining Tenure
-                            </span>
+                        Math.abs(
 
-                            <strong>
+                            Number(
+                                item.emi
+                            )
 
-                                ${formatTenure(
-                                    item.remaining_months
-                                )}
+                            -
 
-                            </strong>
+                            Number(
+                                item.next_emi
+                            )
 
-                        </div>
-
-                    </div>
-
-                `;
-
-            }
+                        ) > 1;
 
 
-            card.innerHTML = `
+                    if (
+                        prepayment > 0
+                    ) {
 
-                <div class="strategy-history-header">
+                        row.classList.add(
+                            "prepayment-highlight"
+                        );
 
-                    <div class="strategy-step-number">
-
-                        ${index + 1}
-
-                    </div>
-
-
-                    <div class="strategy-payment-info">
-
-                        <span class="strategy-time">
-
-                            After
-                            ${formatTenure(
-                                item.month
-                            )}
-
-                        </span>
+                    }
 
 
-                        <h3>
+                    row.innerHTML = `
+
+
+                        <td>
+
+                            ${item.month}
+
+                        </td>
+
+
+                        <td>
 
                             ${formatCurrency(
-                                item.amount
+                                item.opening_balance
                             )}
-                            Prepayment
 
-                        </h3>
+                        </td>
 
 
-                        <span class="selected-strategy ${
-                            isTenure
-                                ? "tenure-strategy"
-                                : "emi-strategy"
+                        <td>
+
+                            ${formatCurrency(
+                                item.emi
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${formatCurrency(
+                                item.principal
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${formatCurrency(
+                                item.interest
+                            )}
+
+                        </td>
+
+
+                        <td class="${
+                            prepayment > 0
+                                ? "prepayment-value"
+                                : ""
                         }">
 
                             ${
-                                isTenure
-                                    ? "Reduce Tenure"
-                                    : "Reduce EMI"
+                                prepayment > 0
+
+                                    ? formatCurrency(
+                                        prepayment
+                                    )
+
+                                    : "—"
                             }
 
-                        </span>
-
-                    </div>
+                        </td>
 
 
-                    <div class="strategy-balance-info">
-
-                        <span>
-                            Balance Before
-                        </span>
-
-                        <strong>
+                        <td>
 
                             ${formatCurrency(
-                                item.balance_before
+                                item.closing_balance
                             )}
 
-                        </strong>
+                        </td>
 
 
-                        <span>
-                            Balance After
-                        </span>
-
-                        <strong>
+                        <td class="${
+                            emiChanged
+                                ? "next-emi-changed"
+                                : ""
+                        }">
 
                             ${formatCurrency(
-                                item.balance_after
+                                item.next_emi
                             )}
 
-                        </strong>
-
-                    </div>
-
-                </div>
+                        </td>
 
 
-                ${resultContent}
-
-            `;
+                    `;
 
 
-            container.appendChild(
-                card
+                    scheduleBody.appendChild(
+                        row
+                    );
+
+                }
             );
-
-        });
-
-    }
-
-
-    // =====================================================
-    // FINAL RESULT
-    // =====================================================
-
-    function displayFinalResult(
-        result,
-        history
-    ) {
-
-        document.getElementById(
-            "finalEmi"
-        ).textContent =
-            formatCurrency(
-                result.final_emi
-            );
-
-
-        document.getElementById(
-            "finalTenure"
-        ).textContent =
-            formatTenure(
-                result.actual_months
-            );
-
-
-        document.getElementById(
-            "monthsSaved"
-        ).textContent =
-            formatTenure(
-                result.months_saved
-            );
-
-
-        document.getElementById(
-            "interestSaved"
-        ).textContent =
-            formatCurrency(
-                result.interest_saved
-            );
-
-
-        document.getElementById(
-            "totalPrepayment"
-        ).textContent =
-            formatCurrency(
-                result.total_prepayment
-            );
-
-
-        document.getElementById(
-            "totalInterest"
-        ).textContent =
-            formatCurrency(
-                result.total_interest
-            );
-
-
-        document.getElementById(
-            "totalPaid"
-        ).textContent =
-            formatCurrency(
-                result.total_paid
-            );
-
-
-        document.getElementById(
-            "totalStrategies"
-        ).textContent =
-            history.length;
-
-    }
-
-
-    // =====================================================
-    // RENDER MONTH-WISE SCHEDULE
-    // =====================================================
-
-    function renderSchedule(schedule) {
-
-        scheduleBody.innerHTML = "";
-
-
-        if (
-            !schedule ||
-            schedule.length === 0
-        ) {
-
-            scheduleBody.innerHTML = `
-
-                <tr>
-
-                    <td colspan="8">
-
-                        No schedule available.
-
-                    </td>
-
-                </tr>
-
-            `;
-
-            return;
 
         }
 
 
-        schedule.forEach(function (item) {
+        // =====================================================
+        // INITIAL SETUP
+        // =====================================================
 
-            const row =
-                document.createElement(
-                    "tr"
-                );
+        updatePrepaymentNumbers();
 
-
-            const prepayment =
-                Number(
-                    item.prepayment
-                ) || 0;
-
-
-            const emiChanged =
-                Math.abs(
-                    Number(item.emi) -
-                    Number(item.next_emi)
-                ) > 1;
-
-
-            if (prepayment > 0) {
-
-                row.classList.add(
-                    "prepayment-highlight"
-                );
-
-            }
-
-
-            row.innerHTML = `
-
-                <td>
-
-                    ${item.month}
-
-                </td>
-
-
-                <td>
-
-                    ${formatCurrency(
-                        item.opening_balance
-                    )}
-
-                </td>
-
-
-                <td>
-
-                    ${formatCurrency(
-                        item.emi
-                    )}
-
-                </td>
-
-
-                <td>
-
-                    ${formatCurrency(
-                        item.principal
-                    )}
-
-                </td>
-
-
-                <td>
-
-                    ${formatCurrency(
-                        item.interest
-                    )}
-
-                </td>
-
-
-                <td class="${
-                    prepayment > 0
-                        ? "prepayment-value"
-                        : ""
-                }">
-
-                    ${
-                        prepayment > 0
-                            ? formatCurrency(
-                                prepayment
-                            )
-                            : "—"
-                    }
-
-                </td>
-
-
-                <td>
-
-                    ${formatCurrency(
-                        item.closing_balance
-                    )}
-
-                </td>
-
-
-                <td class="${
-                    emiChanged
-                        ? "next-emi-changed"
-                        : ""
-                }">
-
-                    ${formatCurrency(
-                        item.next_emi
-                    )}
-
-                </td>
-
-            `;
-
-
-            scheduleBody.appendChild(
-                row
-            );
-
-        });
-
-    }
-
-
-    // Initial numbering
-
-    updatePrepaymentNumbers();
-
-}); 
+    });
